@@ -46,25 +46,27 @@ d'adressage.
 ### Question 1
 
 **Affichez la valeur courante de `CR3`.**
-
+CR3=00000000
 ---
 
 ### Question 2
 
 **Allouez un PGD `(pde32_t*)` à l'adresse physique `0x600000` et mettez à jour `CR3` avec cette adresse.**
-
+Ok.
 ---
 
 ### Question 3
 
 **Activez la pagination (`CR0`). Que se passe-t-il ? Pouquoi ?**
-
+Triple Fault.
+-> pas d'entrée
+-> adreses passent pas la mmu donc le noyeau est pas réglé
 ---
 
 ### Question 4
 
 **Comme pour le PGD, allouez une PTB `(pte32_t*)` à l'adresse `0x601000`.**
-
+(revoir identiy mapping + pagination)
 **Initialisez la mémoire virtuelle en "identity mapping": les adresses virtuelles doivent être les mêmes que les adresses physiques. Pour cela il va falloir:**
 
  - **Bien étudier les plages d'adresses physiques occupées par le noyau (`readelf -e kernel.elf`, regardez les program headers).**
@@ -76,7 +78,7 @@ d'adressage.
 ### Question 5
 
 **Une fois la pagination activée, essayez d'afficher le contenu d'une entrée de votre PTB. Que se passe-t-il ?**
-
+(page fault)
 ---
 
 ### Question 6
@@ -88,7 +90,8 @@ d'adressage.
 ### Question 7
 
 **Faites en sorte que l'adresse virtuelle `0xc0000000` vous permette de modifier votre PGD.**
-
+Il faut mettre en place un mirroring (cf. diapo 75).
+Pas utile dans notre cas car les adresses physiques = adresses logiques.
 ---
 
 ### Question 8
@@ -100,3 +103,4 @@ d'adressage.
 ### Question 9
 
 **Effacez la première entrée du PGD. Que constatez-vous ? Expliquez pourquoi ?**
+Ça continue de marcher, y'a un cache dans la MMU.

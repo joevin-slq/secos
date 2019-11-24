@@ -5,6 +5,7 @@
 
 extern info_t *info;
 extern void idt_trampoline();
+// extern void bp_handler();
 static int_desc_t IDT[IDT_NR_DESC];
 
 void intr_init()
@@ -14,6 +15,7 @@ void intr_init()
    size_t    i;
 
    isr = (offset_t)idt_trampoline;
+   // isr = (offset_t)bp_handler;
 
    /* re-use default grub GDT code descriptor */
    for(i=0 ; i<IDT_NR_DESC ; i++, isr += IDT_ISR_ALGN)

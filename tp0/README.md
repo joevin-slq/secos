@@ -41,20 +41,54 @@ Par défaut, les fichiers de TP permettent d'accéder à un objet global pré-in
 
 **Pourquoi le noyau indique `0x302010` et pas `0x300000` comme adresse de début ? Indice: essayer de comprendre linker.lds, regardez également le code de "entry.s"**
 
+Fichier `linker.lds` :
+
+```asm
+. = 0x300000;
+```
+Le noyeau doit-être chargé à l'adresse physique 3 Mo.
+
+
+Néanmoins il faut laisser un espace disponible réservé à la pile noyeau (0x2000) :
+
+Fichier `entry.s` :
+
+```asm
+.space 0x2000
+```
+Les 10 restant sont utiles pour être alignés.
+
 ---
 
 ### Question 2
 
 **A l'aide de la structure "multiboot_info", vous devez afficher la cartographie mémoire de la VM. Pour cela, utilisez les champs `mmap_addr` et `mmap_length`. Aidez-vous d'internet pour trouver des informations sur le standard multiboot. Le champ `mmap_addr` contient l'adresse du premier objet de type `multiboot_memory_map` qui vous permettra d'afficher des informations sur la mémoire.**
 
+```
+0x0
+0x0 0x9fc00 0x9fc00
+0x0 0xa0000 0xf0000
+0x0 0x100000 0x100000
+0x0 0x7fe0000 0x7fe0000
+0x0 0x8000000 0xfffc0000
+0x0 0x0
+```
+
+Aide : https://wiki.osdev.org/Detecting_Memory_(x86)#Memory_Map_Via_GRUB
+https://www.gnu.org/software/grub/manual/multiboot/multiboot.html#OS-image-format
+https://www.gnu.org/software/grub/manual/multiboot/html_node/multiboot_002eh.html
+
 ---
 
 ### Question 3
 
-**Vous allez découvrir différentes zones de mémoire physique, certaines étant réservées, d'autres libres. Déclarez un pointeur d'entier par exemple et initialisez le avec une des adresses que vous avez trouvée. Essayez de lire/écrire la mémoire à cette adresse. Que se passe-t-il ? Avez-vous un "segmentation fault" ? Pourquoi ?**
+**Vous allez découvrir différentes zones de mémoire physique, certaines étant réservées, d'autres libres. Déclarez un pointeur d'entier par exemple et initialisez le avec une des adresses que vous avez trouvée. Essayez de lire/écrire la mémoire à cette adresse. Que se passe-t-il ? Avez-vous un "segmentation fault" ? Pourquoi ?*
 
+Pas de segmentation fault car pas de garde fous qui nous en empêche!
 ---
 
 ### Question 4
 
 **Essayez de lire/écrire en dehors de la RAM disponible (128MB). Que se passe-t-il ?**
+
+Il ne se passe rien, on a le droit de le faire.

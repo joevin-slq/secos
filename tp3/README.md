@@ -51,13 +51,13 @@ void userland()
 ### Question 3.1
 
 **Que se passe-t-il lors du chargement de DS/ES/FS/GS ?**
-
+Ok.
 ---
 
 ### Question 3.2
 
 **Que se passe-t-il lors du chargement de SS ?**
-
+Ko.
 ---
 
 ### Question 3.3
@@ -65,13 +65,19 @@ void userland()
 **Essayez d'effectuer un "far jump" vers la fonction `userland()`. Pour cela il faut charger dans `CS` le sélecteur de code ring 3 et dans EIP l'adresse de la fonction `userland()`. Vous pouvez utiliser le type `fptr32_t` et la fonction `farjump()` de notre noyau.**
 
 **Quelles conclusions en tirez-vous ? Comment un noyau fait-il pour démarrer une tâche en ring 3 ?**
+Ça plante.
+Lorsque qu'on réalise une interruption pour accéder au ring 3,
+le CPU doit connaître l'emplacement de la pile noyeau.
+Cet adresse est stockée dans le registre ESP0 du segment TSS (Task State Segment). 
 
+On peut pas faire de changement de privilège depuis un niveau de privilège équivalent.
 ---
 
 ### Question 3.4
 
 **Essayez de faire s'exécuter la fonction `userland()` en ring3 avec une autre méthode (indice `iret`). Analysez la faute produite suite à son exécution. Est-ce normal ?**
-
+Une fois que l'on rentre dans userland(), l'exécution de la fin de la fonction se passe mal.
+L'adresse de retour est invalide et la faute (Invalid Operation Code) indique que le CPU a essayé d'exécuter du code qui n'en est pas.
 ---
 
 ### Question Bonus

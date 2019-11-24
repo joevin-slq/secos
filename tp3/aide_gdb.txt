@@ -1,0 +1,39 @@
+Dans PEDA :
+
+disassemble (affiche là où on est)
+list
+p $esp
+x $esp
+x/20x $esp
+x/20i $eip
+
+Côté GDB :
+info registers
+
+
+
+
+bp_handler : 
+gdb-peda$ disassemble
+Dump of assembler code for function bp_handler:
+=> 0x00303fd3 <+0>:	push   ebp
+   0x00303fd4 <+1>:	mov    ebp,esp
+   0x00303fd6 <+3>:	sub    esp,0x18
+   0x00303fd9 <+6>:	leave  
+   0x00303fda <+7>:	pusha  
+   0x00303fdb <+8>:	sub    esp,0xc
+   0x00303fde <+11>:	push   0x304962
+   0x00303fe3 <+16>:	call   0x3030d1 <printf>
+   0x00303fe8 <+21>:	add    esp,0x10
+   0x00303feb <+24>:	mov    eax,DWORD PTR [ebp+0x4]
+   0x00303fee <+27>:	mov    DWORD PTR [ebp-0xc],eax
+   0x00303ff1 <+30>:	sub    esp,0x8
+   0x00303ff4 <+33>:	push   DWORD PTR [ebp-0xc]
+   0x00303ff7 <+36>:	push   0x30497b
+   0x00303ffc <+41>:	call   0x3030d1 <printf>
+   0x00304001 <+46>:	add    esp,0x10
+   0x00304004 <+49>:	popa   
+   0x00304005 <+50>:	iret   
+   0x00304006 <+51>:	nop
+   0x00304007 <+52>:	leave  
+   0x00304008 <+53>:	ret 

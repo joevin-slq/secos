@@ -30,18 +30,25 @@ Chaque trampoline, saute dans `idt_common` qui appelle le gestionnaire d'interru
 ### Question 2
 
 **Activez les interruptions dans une boucle infinie. Que constatez-vous ?**
+Une interruption #32 est déclenchée. Cette interruption est réservée Intel (cf. https://wiki.osdev.org/Interrupts)
 
 ---
 
 ### Question 3
 
 **Gestion furtive des breakpoints #BP (Breakpoint Exception). Le but est de ne pas modifier `intr_hdlr` mais d'intercepter les #BP en amont depuis "tp.c".**
+Voir https://c9x.me/x86/html/file_module_x86_id_304.html
+`while(true)
+{
+    asm volatile("sti");
+}`
 
 ---
 
 ### Question 3.1
 
 **Localisez l'IDT et affichez son adresse de chargement.**
+
 
 ---
 
@@ -54,12 +61,14 @@ Chaque trampoline, saute dans `idt_common` qui appelle le gestionnaire d'interru
 ### Question 3.3
 
 **Écrivez une fonction `bp_trigger` déclenchant un breakpoint grâce à l'instruction `int3`.**
+`asm volatile ("int3");`
 
 ---
 
 ### Question 3.4
 
 **Modifiez le descripteur d'interruption `(int_desc_t)` de #BP afin d'appeler `bp_handler()` la place du trampoline déjà installé. Faites un appel explicite à `bp_trigger()` dans `tp()`. Que constatez-vous ?**
+Voir breakpoint dans Interrupt Vector Source and Cause page 269 dans la documentation AMD.
 
 ---
 
@@ -70,11 +79,13 @@ Chaque trampoline, saute dans `idt_common` qui appelle le gestionnaire d'interru
  - **Que doit faire exactement la fonction `bp_handler()` lorsqu'elle se termine ?**
  - **N'oubliez pas qu'elle n'est pas une simple fonction mais un gestionnaire d'interruption.**
 
+Au moment où on arrive dans la fonction bp_handler(), on empile l'adresse de retour. Ça "pollue".
 ---
 
 ### Question 3.6
 
 **Affichez l'EIP sauvegardé dans la pile au moment où #BP est générée. A quelle adresse cela correspond-il ?**
+Adresse de l'IDT : 0x30400b
 
 ---
 
@@ -83,3 +94,8 @@ Chaque trampoline, saute dans `idt_common` qui appelle le gestionnaire d'interru
 **Affichez un message de debug dans la fonction `bp_trigger()` après le déclenchement du breakpoint. Que constatez-vous ? Essayez de corriger le problème afin que le message s'affiche correctement.**
 
 **Quelles conclusions tirez-vous du développement en C d'un gestionnaire d'interruption ? Pourquoi l'assembleur semble-t-il plus approprié ?**
+
+Je ne constate pas de problème.
+
+Il est pertinent d'écrire en ASM le gestionnaire d'interruption afin de maîtriser correctement le contexte de l'interruption.
+C'est une partie très critique.

@@ -1,0 +1,5 @@
+file kernel.elf
+target remote :1234
+hbreak tp
+c
+b tp.c:38

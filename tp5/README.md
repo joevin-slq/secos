@@ -13,13 +13,13 @@ Le but du TP est de bien comprendre les appels systèmes. Vous pouvez directemen
 ### Question 1
 
 **Essayez de déclencher l'interruption "48" de manière logicielle. Que se passe-t-il ?**
-
+#GP
 ---
 
 ### Question 2
 
 **Corrigez le problème de sorte qu'il soit possible d'appeler l'interruption "48" en ring 3. Inspirez-vous du TP3, attention aux piles user/kernel ! Placez un breakpoint sur l'appel à l'interruption et analysez avec Qemu l'état du processeur (info registers) avant et après l'interruption.**
-
+L'entrée 48 dans l'IDT n'est pas renseignée.
 ---
 
 ### Question 3

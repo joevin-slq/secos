@@ -73,3 +73,5 @@ par
 **Que se passe-t-il ? Pourquoi n'y a-t-il pas de faute mémoire alors que le pointeur `dst` est NULL ?**
 
 **Effectuez à présent une copie de 64 octets. Que se passe-t-il ?**
+Si on essaie de copier plus que 32 octets, on sors de la limite virtuelle du segment de la GDT.
+On crée une faute qui empêche le buffer overflow.
