@@ -2,4 +2,4 @@ file kernel.elf
 target remote :1234
 hbreak tp
 c
-b tp.c:131
+b tp.c:18

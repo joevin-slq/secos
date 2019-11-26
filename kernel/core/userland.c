@@ -2,19 +2,26 @@
 #include <segmentation.h>
 #include <debug.h>
 
-// Utilisateur n°1
-void user1()
+// Écrit un compteur (uint32_t) dans la zone de mémoire partagée
+void __attribute__((section(".user1"))) user1()
 {
 	debug("\nAccès userland n°1 !\n");
 
-    // Appel de l'interruption "48" de manière logicielle.
-	char * chaine = "Bonsoir !";
-    asm volatile("int $48"::"a"(0xCAFE), "b"(chaine)); ; // -> GP si IDT non définie
-	
     while(1);
 }
 
-// Démarre une tâche userland
+// Affiche le compteur depuis la zone de mémoire partagée
+void __attribute__((section(".user2"))) user2()
+{
+	debug("\nAccès userland n°2 !\n");
+	
+	// Appel système via l'interruption 0x80
+	asm volatile("int $0x80"::"S"(20));
+    
+	while(1);
+}
+
+// Démarre une tâche en mode utilisateur
 void userland()
 {
 	asm volatile(

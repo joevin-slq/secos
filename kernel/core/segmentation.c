@@ -1,6 +1,9 @@
 #include <segmentation.h>
 #include <debug.h>
 
+seg_desc_t GDT[6];
+tss_t TSS;
+
 void segmentation(){
   cree_seg_gdt();
   cree_seg_tss();
@@ -84,23 +87,6 @@ void init_gdt()
 	set_gs(gdt_krn_seg_sel(GDT_D0));
 }
 
-// Initie la TSS
-void init_tss()
-{
-  set_ds(gdt_usr_seg_sel(GDT_D3));
-  set_es(gdt_usr_seg_sel(GDT_D3));
-  set_fs(gdt_usr_seg_sel(GDT_D3));
-  set_gs(gdt_usr_seg_sel(GDT_D3));
-
-  // Création de la Task-State Segment :
-  // Chaque tâche userland a besoin d'une pile noyeau,
-  // si on le fait pas, on a TSS invalide car après avoir déclenché une faute
-  // le CPU cherche à gérer la faute dans le noyeau.
-  TSS.s0.esp = get_ebp(); // ESP0 = pointeur de pile noyeau actuel
-  TSS.s0.ss  = gdt_krn_seg_sel(GDT_D0); // SS0 = segment vers la pile noyeau
-  set_tr(gdt_krn_seg_sel(TSS_S0));
-}
-
 // Affiche la GDT
 void affiche_gdt()
 {
@@ -130,4 +116,19 @@ void affiche_gdt()
 		debug(", S:%x", desc->s);		// S -> Type d'accès : 0=System, 1=User
 		debug(", T:0x%x\n", desc->type);// Type de segment (LDT, TSS, Gate, Code ou Data)
 	}
+}
+
+// Initie la TSS
+void init_tss()
+{
+	// Chargement des descripteurs de segment de niveau utilisateur
+	set_ds(gdt_usr_seg_sel(GDT_D3));
+	set_es(gdt_usr_seg_sel(GDT_D3));
+	set_fs(gdt_usr_seg_sel(GDT_D3));
+	set_gs(gdt_usr_seg_sel(GDT_D3));
+	
+	// Création de la Task-State Segment :
+	TSS.s0.esp = get_ebp(); // ESP0 = pointeur de pile noyeau actuel
+	TSS.s0.ss  = gdt_krn_seg_sel(GDT_D0); // SS0 = segment vers la pile noyeau
+	set_tr(gdt_krn_seg_sel(TSS_S0));
 }

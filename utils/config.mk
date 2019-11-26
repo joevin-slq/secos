@@ -36,9 +36,11 @@ core_obj   :=	entry.o \
 		excp.o	\
 		stack.o \
 		segmentation.o \
-		syscall.o \
 		userland.o \
-		pagination.o
+		taches.o \
+		pagination.o \
+		bascule.o
+		
 
 objects    := $(addprefix $(CORE), $(core_obj))
 

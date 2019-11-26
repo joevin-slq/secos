@@ -2,9 +2,6 @@
 #define SEGMENTATION_H
 #include <segmem.h>
 
-seg_desc_t GDT[6];
-tss_t TSS;
-
 #define GDT_C0  1
 #define GDT_D0  2
 #define GDT_C3  3
