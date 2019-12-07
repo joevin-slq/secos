@@ -29,9 +29,12 @@ SECTIONS
    __kernel_end__ = .;
 
    . = 0x400000;
-   .user1    : { KEEP(*(.user1)) . = ALIGN(4);   } : phsetup
+   .user1     : { KEEP(*(.user1)) . = ALIGN(4);     } : phsetup
+   . = 0x401000;
+   .user1_cpt : { KEEP(*(.user1_cpt)) . = ALIGN(4); } : phsetup
 
-   . = 0x500000;
-   .user2    : { KEEP(*(.user2)) . = ALIGN(4);   } : phsetup
-
+   . = 0x800000;
+   .user2     : { KEEP(*(.user2)) . = ALIGN(4);     } : phsetup
+   . = 0x801000;
+   .user2_cpt : { KEEP(*(.user2_cpt)) . = ALIGN(4); } : phsetup
 }

@@ -2,73 +2,84 @@
 #include <debug.h>
 #include <cr.h>
 #include <pagemem.h>
-
-pde32_t *pgd  = (pde32_t*)0x600000; // Page Directory -> pde
-pte32_t *ptb  = (pte32_t*)0x601000; // Page Table -> pte
-pte32_t *ptb2 = (pte32_t*)0x602000; // Page Table -> pte2
-pte32_t *ptb3 = (pte32_t*)0x603000; // Page Table -> pte3
+#include <cartographie.h>
 
 void pagination()
 {
-   debug("PAGINATION : TODO\n");
-   init_pagination();
+    init_noyau();
+    init_user1();
+    init_user2();
+    init_partage();
+
+    // Active la pagination
+    set_cr3(PGD_N);
+    set_cr0(get_cr0()|CR0_PG);
 }
 
-// Page Table (PTB)
-void set_pte(pte32_t * adr_pte, int offset)
+void init_noyau()
 {
-    adr_pte->p = 1;
-    adr_pte->rw = 1;
-    adr_pte->lvl = 0;
-    adr_pte->pwt = 0;
-    adr_pte->pcd = 0;
-    adr_pte->acc = 0;
-    adr_pte->d = 0;
-    adr_pte->pat = 0;
-    adr_pte->g = 0;
-    adr_pte->avl = 0;
-    adr_pte->addr = offset;
+    pde32_t* pgd_n = (pde32_t*) PGD_N;
+    pte32_t* ptb_n = (pte32_t*) PTB_N;
+
+    for(int i = 0; i < 1024; i++) // 0x0000000 à 0x00400000
+        pg_set_entry(&ptb_n[i], PG_KRN|PG_RW, i);
+
+    memset((void*)pgd_n, 0, PAGE_SIZE);
+    pg_set_entry(&pgd_n[0], PG_KRN|PG_RW, page_nr(PTB_N));
 }
 
-// Page Directory (PGD)
-void set_pde(pde32_t * adr_pde)
+void init_user1()
 {
-    adr_pde->p=1;
-    adr_pde->rw=1;
-    adr_pde->lvl=0;
-    adr_pde->pwt=0;
-    adr_pde->pcd=0;
-    adr_pde->acc=0;
-    adr_pde->mbz=0;
-    adr_pde->avl=0;
-    adr_pde->addr=0; // adresse de la première PTB
+    pde32_t* pgd_u1         = (pde32_t*) PGD_U1;
+    pte32_t* ptb_u1_pile_n  = (pte32_t*) PTB_U1_PILE_N;
+    pte32_t* ptb_u1_pile_u  = (pte32_t*) PTB_U1_PILE_U;
+    pte32_t* ptb_u1_partage = (pte32_t*) PTB_U1_PARTAGE;
+
+    for (int i=0; i<1024; i++) // 0x0000000 à 0x00400000
+        pg_set_entry(&ptb_u1_pile_n[i], PG_USR|PG_RW, i);
+
+    for (int i=0; i<1024; i++) // 0x00400000 à 0x00800000
+        pg_set_entry(&ptb_u1_pile_u[i], PG_USR|PG_RW, i+1024);
+
+    for (int i=0; i<1024; i++) // 0x00C00000 à 0x01000000
+        pg_set_entry(&ptb_u1_partage[i], PG_USR|PG_RW, i+3072);
+
+    memset((void*)pgd_u1, 0, PAGE_SIZE);
+    pg_set_entry(&pgd_u1[0], PG_USR|PG_RW, page_nr(PTB_U1_PILE_N));
+    pg_set_entry(&pgd_u1[1], PG_USR|PG_RW, page_nr(PTB_U1_PILE_U));
+    pg_set_entry(&pgd_u1[3], PG_USR|PG_RW, page_nr(PTB_U1_PARTAGE));
 }
 
-void init_pagination()
+void init_user2()
 {
-   set_cr3(pgd);
-   debug("CR3=%x\n", get_cr(3));
+    pde32_t* pgd_u2         = (pde32_t*) PGD_U2;
+    pte32_t* ptb_u2_pile_n  = (pte32_t*) PTB_U2_PILE_N;
+    pte32_t* ptb_u2_pile_u  = (pte32_t*) PTB_U2_PILE_U; 
+    pte32_t* ptb_u2_partage = (pte32_t*) PTB_U2_PARTAGE;
 
-    // Initialisation de la première Page Table Entry
-    for(int i=0; i<1024; i++)
-        set_pte(&ptb[i], i);
-    
-    // Page Directory Entry
-    set_pde(pgd);
-    // Page Directory Entry pointe vers l'adresse de la première Page Table Entry 
-    pgd->addr = (uint32_t)&ptb[0]>>PG_4K_SHIFT;
+    for(int i=0; i<1024; i++) // 0x0000000 à 0x00400000
+        pg_set_entry(&ptb_u2_pile_n[i], PG_USR|PG_RW, i);
 
+    for(int i=0; i<1024; i++) // 0x00C00000 à 0x01000000
+        pg_set_entry(&ptb_u2_pile_u[i], PG_USR|PG_RW, i+2048);
 
-    // Initialisation de la deuxième Page Table Entry
-    for(int i=0; i<1024; i++)
-        set_pte(&ptb2[i], i+1024);
+    for(int i=0; i<1024; i++) // 0x00C00000 à 0x01000000
+        pg_set_entry(&ptb_u2_partage[i], PG_USR|PG_RW, i+3072);
 
-    // Page Directory Entry n°2
-    set_pde(&pgd[1]);
-    // Page Directory Entry n°2 pointe vers l'adresse de la deuxième Page Table Entry 
-    (&pgd[1])->addr = (uint32_t)&ptb2[0]>>PG_4K_SHIFT;
+    memset((void*)pgd_u2, 0, PAGE_SIZE);
+    pg_set_entry(&pgd_u2[0], PG_USR|PG_RW, page_nr(PTB_U2_PILE_N));
+    pg_set_entry(&pgd_u2[2], PG_USR|PG_RW, page_nr(PTB_U2_PILE_U));
+    pg_set_entry(&pgd_u2[3], PG_USR|PG_RW, page_nr(PTB_U2_PARTAGE));
+}
 
-   // Active la pagination
-   set_cr0(get_cr0()|CR0_PG);
-   debug("CR0=%x\n", get_cr0());
+void init_partage()
+{
+    pte32_t* ptb_u1_pile_u = (pte32_t*) PTB_U1_PILE_U;
+    pte32_t* ptb_u2_pile_u = (pte32_t*) PTB_U2_PILE_U;
+
+    int partage_idx_u1 = pt32_idx(U1+0x1000);
+    int partage_idx_u2 = pt32_idx(U2+0x1000);
+
+    pg_set_entry(&ptb_u1_pile_u[partage_idx_u1], PG_USR|PG_RW, page_nr(PARTAGE));
+    pg_set_entry(&ptb_u2_pile_u[partage_idx_u2], PG_USR|PG_RW, page_nr(PARTAGE));
 }

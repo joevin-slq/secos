@@ -8,10 +8,14 @@
 */
 bascule:
 	/* push de ebp */
-
+	pushl %ebp
+	
 	/* changement de pile */
+	movl %esp, (%ecx)
+	movl %edx, %esp
 
 	/* pop de ebp */
-	
-	/* ret */
+	popl   %ebp
 
+	/* ret */
+	ret

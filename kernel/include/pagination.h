@@ -4,8 +4,9 @@
 #include <pagemem.h>
 
 void pagination();
-void set_pte(pte32_t * adr_pte, int offset);
-void set_pde(pde32_t * adr_pde);
-void init_pagination();
+void init_noyau();
+void init_user1();
+void init_user2();
+void init_partage();
 
 #endif

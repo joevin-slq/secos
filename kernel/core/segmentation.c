@@ -128,7 +128,7 @@ void init_tss()
 	set_gs(gdt_usr_seg_sel(GDT_D3));
 	
 	// Création de la Task-State Segment :
-	TSS.s0.esp = get_ebp(); // ESP0 = pointeur de pile noyeau actuel
-	TSS.s0.ss  = gdt_krn_seg_sel(GDT_D0); // SS0 = segment vers la pile noyeau
+	TSS.s0.esp = get_ebp(); // ESP0 = pointeur de pile noyau actuel
+	TSS.s0.ss  = gdt_krn_seg_sel(GDT_D0); // SS0 = segment vers la pile noyau
 	set_tr(gdt_krn_seg_sel(TSS_S0));
 }
