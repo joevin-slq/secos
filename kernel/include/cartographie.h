@@ -18,8 +18,10 @@
 
 /* Adresses utilisateurs */
 #define U1              0x400000 // utilisateur 1 : 0x400000 à 0x800000
+#define U1_CPT          0x401000
 #define PILE_U1         0x7F0000
 #define U2              0x800000 // utilisateur 2 : 0x800000 à 0xC00000
+#define U2_CPT          0x801000
 #define PILE_U2         0xBF0000
 #define PARTAGE         0xD00000 // mémoire partagée
 

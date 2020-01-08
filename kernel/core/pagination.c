@@ -14,6 +14,11 @@ void pagination()
     // Active la pagination
     set_cr3(PGD_N);
     set_cr0(get_cr0()|CR0_PG);
+    
+    // Active SMEP : si le CPU est en ring 0,
+    // qu'il tente d'exécuter du code prevenant du ring3,
+    // il génère une faute de page.
+    set_cr4(get_cr4()|CR4_SMEP_BIT);
 }
 
 void init_noyau()
@@ -36,7 +41,7 @@ void init_user1()
     pte32_t* ptb_u1_partage = (pte32_t*) PTB_U1_PARTAGE;
 
     for (int i=0; i<1024; i++) // 0x0000000 à 0x00400000
-        pg_set_entry(&ptb_u1_pile_n[i], PG_USR|PG_RW, i);
+        pg_set_entry(&ptb_u1_pile_n[i], PG_KRN|PG_RW, i); // PG_KRN ici!
 
     for (int i=0; i<1024; i++) // 0x00400000 à 0x00800000
         pg_set_entry(&ptb_u1_pile_u[i], PG_USR|PG_RW, i+1024);
@@ -58,9 +63,9 @@ void init_user2()
     pte32_t* ptb_u2_partage = (pte32_t*) PTB_U2_PARTAGE;
 
     for(int i=0; i<1024; i++) // 0x0000000 à 0x00400000
-        pg_set_entry(&ptb_u2_pile_n[i], PG_USR|PG_RW, i);
+        pg_set_entry(&ptb_u2_pile_n[i], PG_KRN|PG_RW, i); // PG_KRN ici!
 
-    for(int i=0; i<1024; i++) // 0x00C00000 à 0x01000000
+    for(int i=0; i<1024; i++) // 0x00800000 à 0x00C00000
         pg_set_entry(&ptb_u2_pile_u[i], PG_USR|PG_RW, i+2048);
 
     for(int i=0; i<1024; i++) // 0x00C00000 à 0x01000000
@@ -77,8 +82,8 @@ void init_partage()
     pte32_t* ptb_u1_pile_u = (pte32_t*) PTB_U1_PILE_U;
     pte32_t* ptb_u2_pile_u = (pte32_t*) PTB_U2_PILE_U;
 
-    int partage_idx_u1 = pt32_idx(U1+0x1000);
-    int partage_idx_u2 = pt32_idx(U2+0x1000);
+    int partage_idx_u1 = pt32_idx(U1_CPT);
+    int partage_idx_u2 = pt32_idx(U2_CPT);
 
     pg_set_entry(&ptb_u1_pile_u[partage_idx_u1], PG_USR|PG_RW, page_nr(PARTAGE));
     pg_set_entry(&ptb_u2_pile_u[partage_idx_u2], PG_USR|PG_RW, page_nr(PARTAGE));

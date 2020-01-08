@@ -37,13 +37,18 @@ void int20_handler(int_ctx_t *ctx)
     ordonnanceur(ctx);
 }
 
-/* Appel système pour user2 :
- * -> Affiche le compteur depuis la zone de mémoire partagée. 
- * TODO : Vérifier que l'adresse est valide. */
+/* Appel système pour user2 : 
+ * -> Vérifie que l'adresse appartient à la zone partagée.
+ * -> Affiche le compteur depuis la zone de mémoire partagée. */
 void int80_handler(int_ctx_t *ctx)
 {
     uint32_t* compteur = (uint32_t*) ctx->gpr.esi.raw;
-    debug("(int80) compteur  : %d\n", *compteur);
+    if (0x00C00000 <= (uint32_t)compteur && (uint32_t)compteur <= 0x01000000) {
+        debug("(int80) compteur  : %d\n", *compteur);
+    }
+    else {
+        debug("(int80) accès interdit (%x)\n", compteur);
+    }
 }
 
 void __regparm__(1) intr_hdlr(int_ctx_t *ctx)
